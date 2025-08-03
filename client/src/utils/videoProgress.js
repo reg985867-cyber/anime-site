@@ -15,8 +15,9 @@ const STORAGE_KEYS = {
  * @param {number} currentTime - Текущее время просмотра в секундах
  * @param {number} duration - Общая длительность видео в секундах
  * @param {number} watchedPercent - Процент просмотра
+ * @param {Object} metadata - Дополнительные данные (качество, озвучка, субтитры)
  */
-export const saveVideoProgress = (animeId, episodeId, currentTime, duration, watchedPercent) => {
+export const saveVideoProgress = (animeId, episodeId, currentTime, duration, watchedPercent, metadata = {}) => {
   try {
     const progressData = getVideoProgress();
     const key = `${animeId}_${episodeId}`;
@@ -29,6 +30,10 @@ export const saveVideoProgress = (animeId, episodeId, currentTime, duration, wat
       watchedPercent: Math.round(watchedPercent),
       lastWatched: new Date().toISOString(),
       completed: watchedPercent >= 90, // Считаем завершенным при 90%+
+      quality: metadata.quality || 'auto',
+      voice: metadata.voice || 0,
+      subtitles: metadata.subtitles || false,
+      version: 2 // Версия формата данных
     };
 
     localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progressData));
