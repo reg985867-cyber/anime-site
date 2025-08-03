@@ -21,6 +21,7 @@ import CatalogPage from './pages/CatalogPage';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import VideoPlayerDemo from './pages/VideoPlayerDemo';
+import AnilibriaV2Test from './pages/AnilibriaV2Test';
 
 // Компонент для динамических стилей Toast
 const ToastContainer = () => {
