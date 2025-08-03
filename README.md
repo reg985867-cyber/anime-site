@@ -138,7 +138,10 @@ MONGODB_URI=mongodb://localhost:27017/anime-site
 JWT_SECRET=your-secret-key
 JWT_EXPIRE=30d
 
-# Внешние API
+# AniLiberty API
+ANILIBERTY_API_BASE=https://aniliberty.top/api/v1
+
+# Внешние API (опционально)
 MAL_CLIENT_ID=your-mal-client-id
 ANILIST_CLIENT_ID=your-anilist-client-id
 KITSU_API_KEY=your-kitsu-api-key
