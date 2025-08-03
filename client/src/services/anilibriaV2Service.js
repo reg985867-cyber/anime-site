@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Базовый URL для AniLiberty API v1
-const ANILIBERTY_API_BASE = 'https://aniliberty.top/api';
+const ANILIBERTY_API_BASE = 'https://aniliberty.top/api/v1';
 
 // Создаем отдельный instance axios для AniLiberty API
 const anilibriaV2Api = axios.create({
