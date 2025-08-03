@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { animeService } from '../services/animeService';
 import { anicliService } from '../services/anicliService';
+import anilibriaV2Service from '../services/anilibriaV2Service';
 import { Container, Button, LoadingSpinner } from '../styles/GlobalStyles';
 import { VideoPlayer } from '../components/video';
 import {
