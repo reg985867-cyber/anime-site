@@ -75,7 +75,9 @@ function App() {
                 <Route path="/popular" element={<CatalogPage filter="popular" />} />
                 <Route path="/latest" element={<CatalogPage filter="latest" />} />
                 <Route path="/anime/:id" element={<AnimePage />} />
-                <Route path="/watch/:animeId/:episodeId?" element={<WatchPage />} />
+                <Route path="/watch/:episodeId" element={<WatchPage />} />
+                {/* Обратная совместимость со старым форматом */}
+                <Route path="/watch/:animeId/:episodeId" element={<WatchPage />} />
                 <Route path="/demo/video-player" element={<VideoPlayerDemo />} />
                 <Route path="/test/anilibria-v2" element={<AnilibriaV2Test />} />
 
