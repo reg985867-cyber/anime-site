@@ -25,40 +25,40 @@ anilibriaV2Api.interceptors.response.use(
 );
 
 export const anilibriaV2Service = {
-  // Получить популярные аниме согласно требованиям
+  // Получить популярные аниме (используем latest как популярные)
   async getPopularAnime(params = {}) {
     try {
       const { perPage = 10, page = 1 } = params;
-      const response = await anilibriaV2Api.get('/anime/popular', {
-        params: { perPage, page }
+      const response = await anilibriaV2Api.get('/anime/releases/latest', {
+        params: { limit: perPage }
       });
-      return response.data;
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       throw new Error(`Ошибка получения популярных аниме: ${error.message}`);
     }
   },
 
-  // Получить новые эпизоды согласно требованиям
+  // Получить новые эпизоды (через latest releases)
   async getNewEpisodes(params = {}) {
     try {
       const { perPage = 10, page = 1 } = params;
-      const response = await anilibriaV2Api.get('/releases', {
-        params: { perPage, page }
+      const response = await anilibriaV2Api.get('/anime/releases/latest', {
+        params: { limit: perPage }
       });
-      return response.data;
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       throw new Error(`Ошибка получения новых эпизодов: ${error.message}`);
     }
   },
 
-  // Получить новые аниме согласно требованиям
+  // Получить новые аниме (используем latest)
   async getNewAnime(params = {}) {
     try {
       const { perPage = 10, page = 1 } = params;
-      const response = await anilibriaV2Api.get('/anime/new', {
-        params: { perPage, page }
+      const response = await anilibriaV2Api.get('/anime/releases/latest', {
+        params: { limit: perPage }
       });
-      return response.data;
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       throw new Error(`Ошибка получения новых аниме: ${error.message}`);
     }
@@ -67,7 +67,7 @@ export const anilibriaV2Service = {
   // Получить информацию об аниме по ID
   async getAnimeById(id) {
     try {
-      const response = await anilibriaV2Api.get(`/anime/${id}`);
+      const response = await anilibriaV2Api.get(`/anime/releases/${id}`);
       return response.data;
     } catch (error) {
       throw new Error(`Ошибка получения аниме ${id}: ${error.message}`);
@@ -77,8 +77,10 @@ export const anilibriaV2Service = {
   // Получить эпизоды аниме по ID
   async getAnimeEpisodes(id) {
     try {
-      const response = await anilibriaV2Api.get(`/anime/${id}/episodes`);
-      return response.data;
+      const response = await anilibriaV2Api.get(`/anime/releases/${id}`, {
+        params: { include: 'episodes' }
+      });
+      return response.data?.episodes || [];
     } catch (error) {
       throw new Error(`Ошибка получения эпизодов аниме ${id}: ${error.message}`);
     }
@@ -87,7 +89,7 @@ export const anilibriaV2Service = {
   // Получить конкретный эпизод по episodeId
   async getEpisodeById(episodeId) {
     try {
-      const response = await anilibriaV2Api.get(`/episodes/${episodeId}`);
+      const response = await anilibriaV2Api.get(`/anime/releases/episodes/${episodeId}`);
       return response.data;
     } catch (error) {
       throw new Error(`Ошибка получения эпизода ${episodeId}: ${error.message}`);
@@ -98,15 +100,15 @@ export const anilibriaV2Service = {
   async searchAnime(query, params = {}) {
     try {
       const { perPage = 20, page = 1, ...filters } = params;
-      const response = await anilibriaV2Api.get('/anime/search', {
+      const response = await anilibriaV2Api.get('/app/search/releases', {
         params: {
           search: query,
-          perPage,
+          limit: perPage,
           page,
           ...filters
         }
       });
-      return response.data;
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       throw new Error(`Ошибка поиска аниме: ${error.message}`);
     }
