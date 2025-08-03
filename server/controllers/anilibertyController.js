@@ -10,7 +10,9 @@ class AnilibertyController {
       const limit = parseInt(req.query.limit) || 10;
       
       // Сначала пытаемся получить из локальной базы данных
+      console.log('Fetching popular anime from cache...');
       const cachedAnime = await AnimeLiberty.getPopular(limit);
+      console.log('Cached anime count:', cachedAnime ? cachedAnime.length : 0);
       
       if (cachedAnime && cachedAnime.length > 0) {
         return res.json({
@@ -26,9 +28,11 @@ class AnilibertyController {
       }
       
       // Если кеша нет, пытаемся получить от AniLiberty API
+      console.log('Fetching from AniLiberty API...');
       const result = await anilibertyService.getPopularAnime(limit);
+      console.log('API result:', result);
       
-      if (result.success && result.data.length > 0) {
+      if (result.success && result.data && result.data.length > 0) {
         // Сохраняем в кеш
         const savedAnime = await this.cacheAnimeList(result.data);
         
@@ -40,11 +44,17 @@ class AnilibertyController {
         });
       }
       
-      // Возвращаем ошибку если не удалось получить данные
-      return res.status(500).json({
-        success: false,
-        error: result.error || 'Не удалось получить популярные аниме',
-        message: 'Попробуйте позже'
+      // Возвращаем пустой массив, если данных нет
+      return res.json({
+        success: true,
+        data: [],
+        source: 'empty',
+        message: 'Нет доступных данных',
+        pagination: {
+          total: 0,
+          page: 1,
+          perPage: limit
+        }
       });
       
     } catch (error) {
