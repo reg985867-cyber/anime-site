@@ -9,6 +9,7 @@ const get = promisify(redis.get).bind(redis);
 const set = promisify(redis.set).bind(redis);
 
 const ANICLI_API_URL = process.env.ANICLI_API_URL || 'http://anicli_api:8000';
+const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://python-service:8000';
 
 exports.getVideoStream = async (req, res) => {
   const { anime_id, episode, quality = 'auto' } = req.query;
