@@ -202,22 +202,46 @@ const WatchPage = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const animeResponse = await animeService.getAnimeById(animeId);
-      setAnime(animeResponse.data);
+      
+      // Пробуем загрузить через новый AniLiberty API
+      try {
+        const animeResponse = await anilibriaV2Service.getAnimeById(animeId);
+        setAnime(animeResponse.data);
 
-      if (episodeId) {
-        const episodeResponse = await animeService.getEpisodeById(animeId, episodeId);
-        setEpisode(episodeResponse.data);
+        if (episodeId) {
+          const episodeResponse = await anilibriaV2Service.getEpisodeById(animeId, episodeId);
+          setEpisode(episodeResponse.data);
 
-        // --- Получаем ссылку на видео через Anicli API ---
-        try {
-          const videoData = await anicliService.getAnimeVideo(animeId, episodeId);
-          if (videoData.url) setVideoUrl(videoData.url);
-        } catch (e) {
-          setVideoUrl(null);
+          // Получаем видео URL напрямую из данных эпизода
+          const videoData = await anilibriaV2Service.getAnimeVideo(animeId, episodeId);
+          if (videoData.url) {
+            setVideoUrl(videoData.url);
+            console.log('AniLiberty видео загружено:', videoData);
+          }
+        }
+      } catch (anilibriaError) {
+        console.warn('AniLiberty API недоступен, пробуем fallback:', anilibriaError.message);
+        
+        // Fallback к старому API
+        const animeResponse = await animeService.getAnimeById(animeId);
+        setAnime(animeResponse.data);
+
+        if (episodeId) {
+          const episodeResponse = await animeService.getEpisodeById(animeId, episodeId);
+          setEpisode(episodeResponse.data);
+
+          // Пробуем получить видео через старый Anicli API
+          try {
+            const videoData = await anicliService.getAnimeVideo(animeId, episodeId);
+            if (videoData.url) setVideoUrl(videoData.url);
+          } catch (e) {
+            console.warn('Anicli API также недоступен:', e.message);
+            setVideoUrl(null);
+          }
         }
       }
     } catch (err) {
+      console.error('Ошибка загрузки данных:', err);
       setError('Ошибка загрузки видео');
     } finally {
       setLoading(false);
