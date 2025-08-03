@@ -382,8 +382,8 @@ const WatchPage = () => {
             muted={playerSettings.muted}
             volume={playerSettings.volume}
             playbackRate={playerSettings.playbackRate}
-            // Предпочтения плеера
-            preferredPlayer={playerPreferences.preferredPlayer}
+            // Предпочтения плеера - HLS для потоков .m3u8
+            preferredPlayer={videoUrl && videoUrl.includes('.m3u8') ? 'hls' : playerPreferences.preferredPlayer}
             fallbackPlayers={playerPreferences.fallbackPlayers}
             enablePlayerSelector={playerPreferences.enablePlayerSelector}
             // Обработчики событий
