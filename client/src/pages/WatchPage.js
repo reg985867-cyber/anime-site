@@ -335,10 +335,11 @@ const WatchPage = () => {
         </BackButton>
 
         <VideoContainer>
-          <EpisodeVideoPlayer
+          <EnhancedEpisodePlayer
             episodeId={episodeId}
             animeId={episode.animeId}
             autoPlay={playerSettings.autoPlay}
+            autoNext={playerSettings.autoNext}
             onEpisodeChange={handleEpisodeChange}
             onProgress={handleProgress}
           />
