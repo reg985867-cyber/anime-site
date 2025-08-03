@@ -19,6 +19,8 @@ const externalRoutes = require('./routes/external');
 const watchlistRoutes = require('./routes/watchlist');
 const anilibriaRoutes = require('./routes/anilibria');
 const videoRoutes = require('./routes/video');
+// New AniLiberty API routes
+const apiRoutes = require('./routes/api');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
