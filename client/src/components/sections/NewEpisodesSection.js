@@ -312,10 +312,9 @@ const NewEpisodesSection = ({
         transition={{ duration: 0.6, staggerChildren: 0.1 }}
       >
         {episodes.map((episode, index) => {
-          const animeTitle = episode.anime?.name?.main || episode.anime?.title || episode.title || 'Без названия';
+          const animeTitle = episode.name?.main || episode.title || 'Без названия';
           const episodeTitle = episode.name || `Эпизод ${episode.ordinal || episode.number || index + 1}`;
-          const posterUrl = anilibriaV2Service.getOptimizedImageUrl(episode.anime?.poster) || 
-                           anilibriaV2Service.getOptimizedImageUrl(episode.preview);
+          const posterUrl = anilibriaV2Service.getOptimizedImageUrl(episode.poster);
           
           return (
             <motion.div
