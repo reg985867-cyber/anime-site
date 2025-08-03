@@ -4,31 +4,7 @@ const anilibertyController = require('../controllers/anilibertyController');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 
 /**
- * Получение популярных аниме
- * GET /api/anime/popular
- */
-router.get('/anime/popular', anilibertyController.getPopularAnime);
-
-/**
- * Получение новых эпизодов
- * GET /api/anime/new-episodes
- */
-router.get('/anime/new-episodes', anilibertyController.getNewEpisodes);
-
-/**
- * Получение деталей аниме
- * GET /api/anime/:id
- */
-router.get('/anime/:id', optionalAuth, anilibertyController.getAnimeDetails);
-
-/**
- * Получение данных эпизода
- * GET /api/episode/:id
- */
-router.get('/episode/:id', anilibertyController.getEpisodeData);
-
-/**
- * Поиск аниме
+ * Поиск аниме (должен быть перед :id маршрутом)
  * GET /api/anime/search
  */
 router.get('/anime/search', anilibertyController.searchAnime);
@@ -44,6 +20,24 @@ router.get('/anime/catalog', anilibertyController.getCatalog);
  * GET /api/anime/genres
  */
 router.get('/anime/genres', anilibertyController.getGenres);
+
+/**
+ * Получение популярных аниме
+ * GET /api/anime/popular
+ */
+router.get('/anime/popular', anilibertyController.getPopularAnime);
+
+/**
+ * Получение новых эпизодов
+ * GET /api/anime/new-episodes
+ */
+router.get('/anime/new-episodes', anilibertyController.getNewEpisodes);
+
+/**
+ * Получение деталей аниме (должен быть после специфичных маршрутов)
+ * GET /api/anime/:id
+ */
+router.get('/anime/:id', optionalAuth, anilibertyController.getAnimeDetails);
 
 /**
  * Синхронизация с AniLiberty API (только для администраторов)
