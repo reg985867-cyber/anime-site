@@ -217,6 +217,7 @@ const WatchPage = () => {
           const videoData = await anilibriaV2Service.getAnimeVideo(animeId, episodeId);
           if (videoData.url) {
             setVideoUrl(videoData.url);
+            setVideoQualities(videoData.qualities || []);
             console.log('AniLiberty видео загружено:', videoData);
           }
         }
