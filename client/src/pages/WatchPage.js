@@ -173,6 +173,7 @@ const WatchPage = () => {
   const [videoProgress, setVideoProgress] = useState(null);
   const [lastSaveTime, setLastSaveTime] = useState(0);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [videoQualities, setVideoQualities] = useState([]);
 
   // Загрузка настроек и предпочтений плеера
   useEffect(() => {
