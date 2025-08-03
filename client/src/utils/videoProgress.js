@@ -188,7 +188,27 @@ export const getVideoSettings = () => {
     return { ...defaultSettings, ...parsed };
   } catch (error) {
     console.warn('Ошибка чтения настроек видеоплеера:', error);
-    return getVideoSettings(); // Возвращаем дефолтные настройки
+    return {
+      volume: 1.0,
+      muted: false,
+      quality: 'auto',
+      autoplay: false,
+      autoNext: false,
+      subtitles: 'off',
+      subtitleSettings: {
+        fontSize: '18px',
+        fontFamily: 'Arial, sans-serif',
+        color: '#ffffff',
+        background: 'rgba(0, 0, 0, 0.8)',
+        position: 'bottom',
+        offset: 80
+      },
+      voice: 0,
+      playerType: 'aniliberty',
+      theme: 'dark',
+      hotkeysEnabled: true,
+      version: 2
+    };
   }
 };
 
