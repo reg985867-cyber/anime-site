@@ -215,7 +215,7 @@ process.on('SIGTERM', async () => {
   server.close(() => {
     console.log('HTTP server closed.');
     
-    mongoose.connection.close(false, () => {
+    mongoose.connection.close(false).then(() => {
       console.log('MongoDB connection closed.');
       process.exit(0);
     });
@@ -228,7 +228,7 @@ process.on('SIGINT', async () => {
   server.close(() => {
     console.log('HTTP server closed.');
     
-    mongoose.connection.close(false, () => {
+    mongoose.connection.close(false).then(() => {
       console.log('MongoDB connection closed.');
       process.exit(0);
     });
