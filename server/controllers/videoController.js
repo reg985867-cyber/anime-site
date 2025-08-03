@@ -12,7 +12,7 @@ const ANICLI_API_URL = process.env.ANICLI_API_URL || 'http://anicli_api:8000';
 const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://python-service:8000';
 
 exports.getVideoStream = async (req, res) => {
-  const { anime_id, episode, quality = 'auto' } = req.query;
+  const { anime_id, episode, quality = 'auto', voice = 0 } = req.query;
   const userId = req.user?.id;
 
   try {
@@ -23,6 +23,27 @@ exports.getVideoStream = async (req, res) => {
       throw createError(403, 'Нет доступа к видео');
     }
 
+    // Сначала пробуем получить через Python сервис (AniLiberty)
+    try {
+      const response = await axios.get(`${PYTHON_SERVICE_URL}/video`, {
+        params: { anime_id, episode, quality, voice },
+        timeout: 30000
+      });
+
+      if (response.status === 200) {
+        return res.json({
+          success: true,
+          videoUrl: response.data.url || response.data.videoUrl,
+          quality: response.data.quality || quality,
+          voice: response.data.voice || voice,
+          source: 'aniliberty'
+        });
+      }
+    } catch (pythonError) {
+      console.log('Python service failed, trying fallback:', pythonError.message);
+    }
+
+    // Fallback к старому AniliCLI API
     const response = await axios.get(`${ANICLI_API_URL}/get-anime-video`, {
       params: { anime_id, episode, quality },
       responseType: 'stream',
