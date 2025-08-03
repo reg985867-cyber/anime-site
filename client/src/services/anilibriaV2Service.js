@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 // Базовый URL для AniLiberty API v1
-const ANILIBERTY_API_BASE = 'https://aniliberty.top/api/v1';
+const ANILIBERTY_API_BASE = 'https://aniliberty.top/api';
 
 // Создаем отдельный instance axios для AniLiberty API
 const anilibriaV2Api = axios.create({
   baseURL: ANILIBERTY_API_BASE,
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -25,112 +25,107 @@ anilibriaV2Api.interceptors.response.use(
 );
 
 export const anilibriaV2Service = {
-  // Получить последние релизы
-  async getLatestReleases(limit = 50) {
+  // Получить популярные аниме согласно требованиям
+  async getPopularAnime(params = {}) {
     try {
-      const response = await anilibriaV2Api.get('/anime/releases/latest', {
-        params: { limit }
+      const { perPage = 10, page = 1 } = params;
+      const response = await anilibriaV2Api.get('/anime/popular', {
+        params: { perPage, page }
       });
       return response.data;
     } catch (error) {
-      throw new Error(`Ошибка получения последних релизов: ${error.message}`);
+      throw new Error(`Ошибка получения популярных аниме: ${error.message}`);
     }
   },
 
-  // Получить релиз по ID или alias
-  async getRelease(idOrAlias, include = '') {
+  // Получить новые эпизоды согласно требованиям
+  async getNewEpisodes(params = {}) {
     try {
-      const params = {};
-      if (include) params.include = include;
-
-      const response = await anilibriaV2Api.get(`/anime/releases/${idOrAlias}`, {
-        params
+      const { perPage = 10, page = 1 } = params;
+      const response = await anilibriaV2Api.get('/releases', {
+        params: { perPage, page }
       });
       return response.data;
     } catch (error) {
-      throw new Error(`Ошибка получения релиза ${idOrAlias}: ${error.message}`);
+      throw new Error(`Ошибка получения новых эпизодов: ${error.message}`);
     }
   },
 
-  // Получить релиз с эпизодами
-  async getReleaseWithEpisodes(idOrAlias) {
+  // Получить новые аниме согласно требованиям
+  async getNewAnime(params = {}) {
     try {
-      // Включаем эпизоды в ответ
-      const response = await anilibriaV2Api.get(`/anime/releases/${idOrAlias}`, {
-        params: {
-          include: 'episodes'
-        }
+      const { perPage = 10, page = 1 } = params;
+      const response = await anilibriaV2Api.get('/anime/new', {
+        params: { perPage, page }
       });
       return response.data;
     } catch (error) {
-      throw new Error(`Ошибка получения релиза с эпизодами ${idOrAlias}: ${error.message}`);
+      throw new Error(`Ошибка получения новых аниме: ${error.message}`);
     }
   },
 
-  // Получить конкретный эпизод
-  async getEpisode(episodeId, include = '') {
+  // Получить информацию об аниме по ID
+  async getAnimeById(id) {
     try {
-      const params = {};
-      if (include) params.include = include;
+      const response = await anilibriaV2Api.get(`/anime/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Ошибка получения аниме ${id}: ${error.message}`);
+    }
+  },
 
-      const response = await anilibriaV2Api.get(`/anime/releases/episodes/${episodeId}`, {
-        params
-      });
+  // Получить эпизоды аниме по ID
+  async getAnimeEpisodes(id) {
+    try {
+      const response = await anilibriaV2Api.get(`/anime/${id}/episodes`);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Ошибка получения эпизодов аниме ${id}: ${error.message}`);
+    }
+  },
+
+  // Получить конкретный эпизод по episodeId
+  async getEpisodeById(episodeId) {
+    try {
+      const response = await anilibriaV2Api.get(`/episodes/${episodeId}`);
       return response.data;
     } catch (error) {
       throw new Error(`Ошибка получения эпизода ${episodeId}: ${error.message}`);
     }
   },
 
-  // Получить эпизод с данными релиза
-  async getEpisodeWithRelease(episodeId) {
+  // Поиск аниме по названию
+  async searchAnime(query, params = {}) {
     try {
-      const response = await anilibriaV2Api.get(`/anime/releases/episodes/${episodeId}`, {
-        params: {
-          include: 'release'
-        }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(`Ошибка получения эпизода с релизом ${episodeId}: ${error.message}`);
-    }
-  },
-
-  // Поиск релизов
-  async searchReleases(query, page = 1, limit = 50) {
-    try {
-      const response = await anilibriaV2Api.get('/app/search/releases', {
+      const { perPage = 20, page = 1, ...filters } = params;
+      const response = await anilibriaV2Api.get('/anime/search', {
         params: {
           search: query,
+          perPage,
           page,
-          limit
+          ...filters
         }
       });
       return response.data;
     } catch (error) {
-      throw new Error(`Ошибка поиска релизов: ${error.message}`);
+      throw new Error(`Ошибка поиска аниме: ${error.message}`);
     }
   },
 
-  // Получить рекомендуемые релизы
-  async getRecommendedReleases(limit = 20) {
+  // УСТАРЕВШИЕ МЕТОДЫ ДЛЯ ОБРАТНОЙ СОВМЕСТИМОСТИ
+  // Получить последние релизы (для обратной совместимости)
+  async getLatestReleases(limit = 50) {
     try {
-      const response = await anilibriaV2Api.get('/anime/releases/recommended', {
-        params: { limit }
-      });
-      return response.data;
+      return await this.getNewEpisodes({ perPage: limit });
     } catch (error) {
-      throw new Error(`Ошибка получения рекомендуемых релизов: ${error.message}`);
+      throw new Error(`Ошибка получения последних релизов: ${error.message}`);
     }
   },
 
-  // Получить случайные релизы
+  // Получить случайные релизы (fallback к популярным)
   async getRandomReleases(limit = 10) {
     try {
-      const response = await anilibriaV2Api.get('/anime/releases/random', {
-        params: { limit }
-      });
-      return response.data;
+      return await this.getPopularAnime({ perPage: limit });
     } catch (error) {
       throw new Error(`Ошибка получения случайных релизов: ${error.message}`);
     }
