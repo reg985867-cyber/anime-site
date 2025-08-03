@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { animeService } from '../services/animeService';
 import anilibriaService from '../services/anilibriaService';
+import anilibriaV2Service from '../services/anilibriaV2Service';
 import { Container, Grid, Button, LoadingSpinner } from '../styles/GlobalStyles';
 import AnimeCard from '../components/anime/AnimeCard';
 import SearchBar from '../components/common/SearchBar';
