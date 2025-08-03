@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import anilibriaV2Service from '../services/anilibriaV2Service';
 import { Container, Button, LoadingSpinner } from '../styles/GlobalStyles';
-import EpisodeVideoPlayer from '../components/video/EpisodeVideoPlayer';
+import { EnhancedEpisodePlayer } from '../components/video';
 import {
   saveVideoProgress,
   loadVideoProgress,
