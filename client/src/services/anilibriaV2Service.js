@@ -137,17 +137,20 @@ export const anilibriaV2Service = {
   getVideoUrl(episode, quality = '720') {
     if (!episode) return null;
 
+    // Новая структура API - поддержка react-player
+    if (episode.video_url) return episode.video_url;
+    
     const qualityMap = {
-      '1080': episode.hls_1080,
-      '720': episode.hls_720,
-      '480': episode.hls_480,
+      '1080': episode.hls_1080 || episode.video_1080,
+      '720': episode.hls_720 || episode.video_720,
+      '480': episode.hls_480 || episode.video_480,
     };
 
     // Возвращаем запрошенное качество или fallback к доступному
     return qualityMap[quality] || 
-           episode.hls_1080 || 
-           episode.hls_720 || 
-           episode.hls_480 || 
+           episode.hls_1080 || episode.video_1080 ||
+           episode.hls_720 || episode.video_720 ||
+           episode.hls_480 || episode.video_480 ||
            null;
   },
 
@@ -156,63 +159,81 @@ export const anilibriaV2Service = {
     if (!episode) return [];
 
     const qualities = [];
-    if (episode.hls_1080) qualities.push({ height: 1080, src: episode.hls_1080, label: '1080p' });
-    if (episode.hls_720) qualities.push({ height: 720, src: episode.hls_720, label: '720p' });
-    if (episode.hls_480) qualities.push({ height: 480, src: episode.hls_480, label: '480p' });
+    if (episode.hls_1080 || episode.video_1080) {
+      qualities.push({ 
+        height: 1080, 
+        src: episode.hls_1080 || episode.video_1080, 
+        label: '1080p' 
+      });
+    }
+    if (episode.hls_720 || episode.video_720) {
+      qualities.push({ 
+        height: 720, 
+        src: episode.hls_720 || episode.video_720, 
+        label: '720p' 
+      });
+    }
+    if (episode.hls_480 || episode.video_480) {
+      qualities.push({ 
+        height: 480, 
+        src: episode.hls_480 || episode.video_480, 
+        label: '480p' 
+      });
+    }
 
     return qualities;
   },
 
-  // Конвертировать данные релиза в формат, совместимый с существующим кодом
-  convertReleaseToAnimeFormat(release) {
-    if (!release) return null;
+  // Конвертировать данные аниме в унифицированный формат
+  convertAnimeToFormat(anime) {
+    if (!anime) return null;
 
     return {
-      id: release.id,
-      title: release.name?.main || release.name?.english || 'Без названия',
-      titleEnglish: release.name?.english,
-      titleAlternative: release.name?.alternative,
-      alias: release.alias,
-      year: release.year,
-      type: release.type?.description || release.type?.value,
-      status: release.is_ongoing ? 'Онгоинг' : 'Завершён',
-      poster: this.getOptimizedImageUrl(release.poster),
-      description: release.description,
-      episodes: release.episodes_total,
-      genres: release.genres?.map(genre => genre.name) || [],
-      rating: null, // В AniLiberty API нет рейтинга
-      ageRating: release.age_rating?.label,
-      season: release.season?.description,
-      duration: release.average_duration_of_episode,
-      // Дополнительные поля из AniLiberty
-      publishDay: release.publish_day?.description,
-      isOngoing: release.is_ongoing,
-      isInProduction: release.is_in_production,
-      favorites: release.added_in_users_favorites,
-      fresh_at: release.fresh_at,
-      updated_at: release.updated_at,
+      id: anime.id,
+      title: anime.name?.main || anime.title || 'Без названия',
+      titleEnglish: anime.name?.english || anime.title_english,
+      titleAlternative: anime.name?.alternative || anime.title_alternative,
+      alias: anime.alias,
+      year: anime.year,
+      type: anime.type?.description || anime.type?.value || anime.type,
+      status: this.getStatusText(anime),
+      poster: this.getOptimizedImageUrl(anime.poster),
+      description: anime.description,
+      episodes: anime.episodes_total || anime.episodes,
+      genres: this.getGenres(anime.genres),
+      rating: anime.rating || anime.average_rating,
+      ageRating: anime.age_rating?.label || anime.age_rating,
+      season: anime.season?.description || anime.season,
+      duration: anime.average_duration_of_episode || anime.duration,
+      // Дополнительные поля
+      publishDay: anime.publish_day?.description,
+      isOngoing: anime.is_ongoing,
+      isInProduction: anime.is_in_production,
+      favorites: anime.added_in_users_favorites,
+      fresh_at: anime.fresh_at,
+      updated_at: anime.updated_at,
     };
   },
 
-  // Конвертировать данные эпизода в формат, совместимый с существующим кодом
+  // Конвертировать данные эпизода в унифицированный формат
   convertEpisodeToFormat(episode) {
     if (!episode) return null;
 
     return {
       id: episode.id,
-      number: episode.ordinal,
-      title: episode.name || episode.name_english || `Эпизод ${episode.ordinal}`,
-      titleEnglish: episode.name_english,
+      number: episode.ordinal || episode.number,
+      title: episode.name || episode.title || `Эпизод ${episode.ordinal || episode.number}`,
+      titleEnglish: episode.name_english || episode.title_english,
       duration: episode.duration,
-      sortOrder: episode.sort_order,
+      sortOrder: episode.sort_order || episode.number,
       preview: this.getOptimizedImageUrl(episode.preview),
       
       // Видео URL'ы
       videoUrl: this.getVideoUrl(episode, '720'),
       videoUrls: {
-        '480': episode.hls_480,
-        '720': episode.hls_720,
-        '1080': episode.hls_1080,
+        '480': episode.hls_480 || episode.video_480,
+        '720': episode.hls_720 || episode.video_720,
+        '1080': episode.hls_1080 || episode.video_1080,
       },
 
       // Тайм-коды для скипа опенинга/эндинга
@@ -224,13 +245,39 @@ export const anilibriaV2Service = {
       youtubeId: episode.youtube_id,
 
       updated_at: episode.updated_at,
-      releaseId: episode.release_id,
+      animeId: episode.anime_id || episode.release_id,
     };
+  },
+
+  // Получить статус аниме
+  getStatusText(anime) {
+    if (anime.is_ongoing) return 'Онгоинг';
+    if (anime.status) {
+      if (typeof anime.status === 'string') return anime.status;
+      if (anime.status.description) return anime.status.description;
+    }
+    return 'Завершён';
+  },
+
+  // Получить жанры
+  getGenres(genres) {
+    if (!genres) return [];
+    if (Array.isArray(genres)) {
+      return genres.map(genre => 
+        typeof genre === 'string' ? genre : genre.name || genre.title
+      );
+    }
+    return [];
   },
 
   // Получить оптимизированный URL изображения
   getOptimizedImageUrl(imageObject) {
     if (!imageObject) return null;
+    
+    // Если это уже готовый URL
+    if (typeof imageObject === 'string') {
+      return imageObject.startsWith('http') ? imageObject : `https://aniliberty.top${imageObject}`;
+    }
     
     // Приоритет: optimized > preview > src > thumbnail
     if (imageObject.optimized?.preview) {
@@ -249,34 +296,52 @@ export const anilibriaV2Service = {
     return null;
   },
 
-  // Методы для совместимости с существующим кодом приложения
-
-  // Получить аниме по ID (совместимость с animeService)
-  async getAnimeById(animeId) {
+  // МЕТОДЫ ДЛЯ ОБРАТНОЙ СОВМЕСТИМОСТИ
+  
+  // Получить релиз (для старого кода)
+  async getRelease(idOrAlias, include = '') {
     try {
-      const release = await this.getRelease(animeId);
-      return {
-        data: this.convertReleaseToAnimeFormat(release),
-        success: true
-      };
+      return await this.getAnimeById(idOrAlias);
     } catch (error) {
-      throw new Error(`Ошибка получения аниме ${animeId}: ${error.message}`);
+      throw new Error(`Ошибка получения релиза ${idOrAlias}: ${error.message}`);
     }
   },
 
-  // Получить эпизод по ID аниме и номеру эпизода
-  async getEpisodeById(animeId, episodeNumber) {
+  // Получить релиз с эпизодами (для старого кода)
+  async getReleaseWithEpisodes(idOrAlias) {
     try {
-      // Сначала получаем релиз с эпизодами
-      const release = await this.getReleaseWithEpisodes(animeId);
+      const [anime, episodes] = await Promise.all([
+        this.getAnimeById(idOrAlias),
+        this.getAnimeEpisodes(idOrAlias)
+      ]);
       
-      if (!release.episodes || !Array.isArray(release.episodes)) {
+      return {
+        ...anime,
+        episodes: episodes
+      };
+    } catch (error) {
+      throw new Error(`Ошибка получения релиза с эпизодами ${idOrAlias}: ${error.message}`);
+    }
+  },
+
+  // Конвертация для старого кода
+  convertReleaseToAnimeFormat(release) {
+    return this.convertAnimeToFormat(release);
+  },
+
+  // Получить эпизод по ID аниме и номеру эпизода (для старого кода)
+  async getEpisodeByAnimeAndNumber(animeId, episodeNumber) {
+    try {
+      const episodes = await this.getAnimeEpisodes(animeId);
+      
+      if (!episodes || !Array.isArray(episodes)) {
         throw new Error('Эпизоды не найдены');
       }
 
       // Ищем эпизод по номеру
-      const episode = release.episodes.find(ep => 
+      const episode = episodes.find(ep => 
         ep.ordinal === parseFloat(episodeNumber) || 
+        ep.number === parseInt(episodeNumber) ||
         ep.sort_order === parseInt(episodeNumber)
       );
 
@@ -284,29 +349,22 @@ export const anilibriaV2Service = {
         throw new Error(`Эпизод ${episodeNumber} не найден`);
       }
 
-      return {
-        data: this.convertEpisodeToFormat(episode),
-        success: true
-      };
+      return this.convertEpisodeToFormat(episode);
     } catch (error) {
       throw new Error(`Ошибка получения эпизода ${episodeNumber} для аниме ${animeId}: ${error.message}`);
     }
   },
 
-  // Получить видео для аниме и эпизода (совместимость с anicliService)
-  async getAnimeVideo(animeId, episodeNumber, quality = '720') {
+  // Получить видео для эпизода (обновленный метод)
+  async getEpisodeVideo(episodeId, quality = '720') {
     try {
-      const episodeResponse = await this.getEpisodeById(animeId, episodeNumber);
-      const episode = episodeResponse.data;
+      const episode = await this.getEpisodeById(episodeId);
 
-      if (!episode || !episode.videoUrls) {
-        throw new Error('Видео не найдено');
+      if (!episode) {
+        throw new Error('Эпизод не найден');
       }
 
-      const videoUrl = episode.videoUrls[quality] || 
-                      episode.videoUrls['720'] || 
-                      episode.videoUrls['1080'] || 
-                      episode.videoUrls['480'];
+      const videoUrl = this.getVideoUrl(episode, quality);
 
       if (!videoUrl) {
         throw new Error('Видео URL не найден');
@@ -314,17 +372,13 @@ export const anilibriaV2Service = {
 
       return {
         url: videoUrl,
-        qualities: this.getAvailableQualities({
-          hls_480: episode.videoUrls['480'],
-          hls_720: episode.videoUrls['720'],
-          hls_1080: episode.videoUrls['1080'],
-        }),
-        type: 'hls', // Всегда HLS для AniLiberty
-        episode: episode,
+        qualities: this.getAvailableQualities(episode),
+        type: videoUrl.includes('.m3u8') ? 'hls' : 'video',
+        episode: this.convertEpisodeToFormat(episode),
         success: true
       };
     } catch (error) {
-      throw new Error(`Ошибка получения видео: ${error.message}`);
+      throw new Error(`Ошибка получения видео для эпизода ${episodeId}: ${error.message}`);
     }
   },
 };
