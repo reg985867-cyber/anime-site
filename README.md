@@ -149,18 +149,17 @@ KITSU_API_KEY=your-kitsu-api-key
 
 ### Внешние API
 
-Для полной функциональности получите API ключи:
+Для полной функциональности используется:
 
-1. **MyAnimeList API**
-   - Регистрация: https://myanimelist.net/apiconfig
-   - Документация: https://myanimelist.net/apiconfig/references/api/v2
+1. **AniLiberty API v1** (основной источник данных)
+   - Документация: https://aniliberty.top/api/docs/v1
+   - Не требует регистрации для базовых функций
+   - Поддержка HLS видео и субтитров
 
-2. **AniList API**
-   - Регистрация: https://anilist.co/settings/developer
-   - Документация: https://anilist.gitbook.io/anilist-apiv2-docs/
-
-3. **Kitsu API**
-   - Документация: https://kitsu.docs.apiary.io/
+2. **Дополнительные API** (опционально):
+   - MyAnimeList API: https://myanimelist.net/apiconfig
+   - AniList API: https://anilist.co/settings/developer
+   - Kitsu API: https://kitsu.docs.apiary.io/
 
 ## 📚 API Документация
 
