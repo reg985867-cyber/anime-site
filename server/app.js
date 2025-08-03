@@ -191,18 +191,8 @@ const connectDB = async () => {
 // Create database indexes
 const createIndexes = async () => {
   try {
-    const User = require('./models/User');
-    const Anime = require('./models/Anime');
-    const WatchList = require('./models/WatchList');
-    const Comment = require('./models/Comment');
-
-    // Ensure indexes are created
-    await User.createIndexes();
-    await Anime.createIndexes();
-    await WatchList.createIndexes();
-    await Comment.createIndexes();
-
-    console.log('Database indexes created successfully');
+    console.log('Skipping index creation to avoid conflicts...');
+    console.log('Database indexes will be created automatically by models');
   } catch (error) {
     console.error('Error creating indexes:', error);
   }
