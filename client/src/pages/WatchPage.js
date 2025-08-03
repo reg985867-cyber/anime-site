@@ -398,7 +398,7 @@ const WatchPage = () => {
             onVolumeChange={handleVolumeChange}
             onPlaybackRateChange={handlePlaybackRateChange}
             // Качества и субтитры
-            qualities={[
+            qualities={videoQualities.length > 0 ? videoQualities : [
               { height: 1080, src: episode?.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
               { height: 720, src: episode?.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
               { height: 480, src: episode?.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
