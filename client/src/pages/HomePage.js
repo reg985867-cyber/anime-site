@@ -96,27 +96,58 @@ const HomePage = () => {
     try {
       setLoading(true);
 
-      // Сначала пытаемся загрузить данные из AniLibria
-      const [popularResult, updatesResult] = await Promise.all([
-        anilibriaService.getPopular(12).catch(() => null),
-        anilibriaService.getUpdates(12).catch(() => null),
-      ]);
-
+      // Приоритет: AniLiberty API v2
       let popular = [];
       let latest = [];
 
-      // Если данные из AniLibria получены успешно
-      if (popularResult?.success && popularResult.data?.data) {
-        popular = popularResult.data.data.map(title => anilibriaService.formatAnimeData(title));
+      try {
+        console.log('🚀 Загрузка данных через AniLiberty API v2...');
+        
+        // Получаем последние релизы как популярные и новые
+        const [latestReleases, randomReleases] = await Promise.all([
+          anilibriaV2Service.getLatestReleases(12),
+          anilibriaV2Service.getRandomReleases(12).catch(() => [])
+        ]);
+
+        if (latestReleases && latestReleases.length > 0) {
+          latest = latestReleases.map(release => anilibriaV2Service.convertReleaseToAnimeFormat(release));
+          console.log(`✅ Загружено ${latest.length} новых релизов из AniLiberty v2`);
+        }
+
+        if (randomReleases && randomReleases.length > 0) {
+          popular = randomReleases.map(release => anilibriaV2Service.convertReleaseToAnimeFormat(release));
+          console.log(`✅ Загружено ${popular.length} популярных релизов из AniLiberty v2`);
+        } else {
+          // Если рандомные не получились, используем те же последние как популярные
+          popular = latest.slice();
+        }
+
+      } catch (v2Error) {
+        console.warn('AniLiberty API v2 недоступен:', v2Error.message);
+        
+        // Fallback к старому AniLibria API
+        try {
+          console.log('🔄 Fallback к AniLibria API v1...');
+          const [popularResult, updatesResult] = await Promise.all([
+            anilibriaService.getPopular(12).catch(() => null),
+            anilibriaService.getUpdates(12).catch(() => null),
+          ]);
+
+          if (popularResult?.success && popularResult.data?.data) {
+            popular = popularResult.data.data.map(title => anilibriaService.formatAnimeData(title));
+          }
+
+          if (updatesResult?.success && updatesResult.data?.data) {
+            latest = updatesResult.data.data.map(title => anilibriaService.formatAnimeData(title));
+          }
+        } catch (v1Error) {
+          console.warn('AniLibria API v1 также недоступен:', v1Error.message);
+        }
       }
 
-      if (updatesResult?.success && updatesResult.data?.data) {
-        latest = updatesResult.data.data.map(title => anilibriaService.formatAnimeData(title));
-      }
-
-      // Fallback на локальные данные если AniLibria недоступен или пусто
+      // Последний fallback на локальные данные
       if (popular.length === 0 || latest.length === 0) {
-        console.log('Fallback to local data');
+        console.log('🔄 Последний fallback к локальным данным...');
         const [localPopular, localLatest] = await Promise.all([
           animeService.getPopularAnime(12).catch(() => ({ data: [] })),
           animeService.getLatestAnime(12).catch(() => ({ data: [] })),
@@ -126,8 +157,39 @@ const HomePage = () => {
         if (latest.length === 0) latest = localLatest.data || [];
       }
 
+      // Если всё равно пусто, создаем тестовые данные
+      if (popular.length === 0 && latest.length === 0) {
+        console.log('📝 Создание тестовых данных...');
+        const mockData = [
+          {
+            id: 'test1',
+            title: 'Эта фарфоровая кукла влюбилась 2',
+            titleEnglish: 'Sono Bisque Doll wa Koi wo Suru 2',
+            year: 2025,
+            poster: 'https://www.anilibria.tv/storage/releases/posters/9964/medium.jpg',
+            genres: ['Романтика', 'Комедия', 'Школа'],
+            rating: 8.5,
+            status: 'Онгоинг'
+          },
+          {
+            id: 'test2', 
+            title: 'Кайдзю номер восемь 2',
+            titleEnglish: 'Kaiju No. 8 Season 2',
+            year: 2025,
+            poster: 'https://www.anilibria.tv/storage/releases/posters/9988/medium.jpg',
+            genres: ['Экшен', 'Сёнэн', 'Супер сила'],
+            rating: 8.8,
+            status: 'Онгоинг'
+          }
+        ];
+        popular = mockData;
+        latest = mockData;
+      }
+
       setPopularAnime(popular);
       setLatestAnime(latest);
+      console.log(`🎯 Итого загружено: ${popular.length} популярных, ${latest.length} новых`);
+      
     } catch (err) {
       setError('Ошибка загрузки данных. Попробуйте обновить страницу.');
       console.error('Error loading initial data:', err);
