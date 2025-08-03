@@ -165,15 +165,20 @@ KITSU_API_KEY=your-kitsu-api-key
 
 ### Основные эндпоинты
 
+#### Интеграция с AniLiberty API v1
+- `GET /api/anime/popular` - популярные аниме
+- `GET /api/anime/new-episodes` - новые эпизоды  
+- `GET /api/anime/:id` - детали аниме
+- `GET /api/episode/:id` - данные эпизода с видео и субтитрами
+- `GET /api/anime/search` - поиск аниме
+- `GET /api/anime/catalog` - каталог с фильтрацией
+- `GET /api/anime/genres` - список жанров
+- `GET /api/status` - статус API и сервера
+
 #### Аутентификация
 - `POST /api/auth/register` - Регистрация
 - `POST /api/auth/login` - Вход
 - `GET /api/auth/me` - Текущий пользователь
-
-#### Аниме
-- `GET /api/anime` - Список аниме
-- `GET /api/anime/:id` - Детали аниме
-- `GET /api/anime/search` - Поиск
 
 #### Пользователи
 - `GET /api/users/profile` - Профиль
@@ -183,6 +188,22 @@ KITSU_API_KEY=your-kitsu-api-key
 #### Комментарии
 - `GET /api/comments/:animeId` - Комментарии к аниме
 - `POST /api/comments` - Создание комментария
+
+### Примеры запросов
+
+```bash
+# Получить популярные аниме
+curl "http://localhost:5000/api/anime/popular?limit=10"
+
+# Поиск аниме
+curl "http://localhost:5000/api/anime/search?query=Naruto"
+
+# Получить данные эпизода
+curl "http://localhost:5000/api/episode/12345"
+
+# Фильтрация каталога
+curl "http://localhost:5000/api/anime/catalog?genres=Action,Adventure&year=2023"
+```
 
 ## 🧪 Тестирование
 
