@@ -77,6 +77,7 @@ function App() {
                 <Route path="/anime/:id" element={<AnimePage />} />
                 <Route path="/watch/:animeId/:episodeId?" element={<WatchPage />} />
                 <Route path="/demo/video-player" element={<VideoPlayerDemo />} />
+                <Route path="/test/anilibria-v2" element={<AnilibriaV2Test />} />
 
                 {/* Защищенные маршруты */}
                 <Route path="/profile" element={
