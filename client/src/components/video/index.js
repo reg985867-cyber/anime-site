@@ -3,9 +3,11 @@ export { default as VideoPlayer, PLAYER_TYPES, useVideoPlayer } from './VideoPla
 
 // Новые компоненты для AniLiberty
 export { default as AniLibertyPlayer } from './AniLibertyPlayer';
+export { default as EnhancedAniLibertyPlayer } from './EnhancedAniLibertyPlayer';
 export { default as EnhancedEpisodePlayer } from './EnhancedEpisodePlayer';
 export { default as SubtitleManager } from './SubtitleManager';
 export { default as VoiceSelector } from './VoiceSelector';
+export { default as QualityController } from './QualityController';
 
 // Отдельные плееры для прямого использования
 export { default as HTML5Player } from './HTML5Player';
