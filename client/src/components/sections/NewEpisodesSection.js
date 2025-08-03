@@ -364,8 +364,8 @@ const NewEpisodesSection = ({
                     </span>
                   </EpisodeMeta>
                   
-                  <WatchButton to={`/watch/${episode.id}`}>
-                    Смотреть эпизод
+                  <WatchButton to={`/anime/${episode.id}`}>
+                    Смотреть аниме
                   </WatchButton>
                 </EpisodeContent>
               </EpisodeCard>
