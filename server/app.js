@@ -138,7 +138,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
+// API routes  
+// AniLiberty API routes (должны быть первыми)
+app.use('/api', apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/anime', animeApiRoutes);
@@ -148,8 +150,6 @@ app.use('/api/external', externalRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/anilibria', anilibriaRoutes);
 app.use('/api/video', videoRoutes);
-// AniLiberty API routes
-app.use('/api', apiRoutes);
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
