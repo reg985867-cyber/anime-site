@@ -46,7 +46,7 @@ router.get('/:id/episodes',
 
 // GET /api/anime/:id/episodes/:episodeId - Конкретный эпизод
 router.get('/:id/episodes/:episodeId',
-  validateParams(paramSchemas.objectId),
+  validateParams(paramSchemas.animeEpisode),
   animeController.getEpisodeById
 );
 
