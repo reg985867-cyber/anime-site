@@ -148,6 +148,8 @@ app.use('/api/external', externalRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/anilibria', anilibriaRoutes);
 app.use('/api/video', videoRoutes);
+// AniLiberty API routes
+app.use('/api', apiRoutes);
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
